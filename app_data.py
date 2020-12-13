@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import lightgbm as lgb
 from sklearn import metrics 
+import category_encoders as ce 
 
 click_data=pd.read_csv("train_sample.csv",parse_dates=["click_time"])
 
@@ -35,7 +36,7 @@ valid_rows=int(len(clicks_srt)*valid_frac)
 train=clicks_srt[:-valid_rows*2]
 valid=clicks_srt[-valid_rows*2:-valid_rows]
 test=clicks_srt[-valid_rows:]
-
+"""
 #create test, train, valid dataset
 dtrain=lgb.Dataset(train[feature_cols],label=train['is_attributed'])
 dvalid = lgb.Dataset(valid[feature_cols], label=valid['is_attributed'])
@@ -50,4 +51,48 @@ bst = lgb.train(param, dtrain, num_round, valid_sets=[dvalid], early_stopping_ro
 #evalute model
 ypred = bst.predict(test[feature_cols])
 score = metrics.roc_auc_score(test['is_attributed'], ypred)
-print(f"Test score: {score}")
+#print(f"Test score: {score}")
+"""
+"""
+#apply count encoder
+count_enc = ce.CountEncoder(cols=categorical_features)
+count_enc.fit(train[categorical_features])
+train_encoded = train.join(count_enc.transform(train[categorical_features]).add_suffix('_count'))
+valid_encoded = valid.join(count_enc.transform(valid[categorical_features]).add_suffix('_count'))
+
+#train model
+dtrain_CE=lgb.Dataset(train_encoded[feature_cols],label=train_encoded['is_attributed'])
+dvalid_CE = lgb.Dataset(valid_encoded[feature_cols], label=valid_encoded['is_attributed'])
+param = {'num_leaves': 64, 'objective': 'binary'}
+param['metric'] = 'auc'
+num_round = 1000
+#train model
+bst_CE = lgb.train(param, dtrain_CE, num_round, valid_sets=[dvalid_CE], early_stopping_rounds=10)
+
+#evalute model
+ypred_CE = bst_CE.predict(valid_encoded[feature_cols])
+score_CE= metrics.roc_auc_score(valid_encoded['is_attributed'], ypred_CE)
+print(f"Test score: {score_CE}")
+"""
+
+#apply target encoding
+target_enc = ce.TargetEncoder(cols=categorical_features)
+target_enc.fit(train[categorical_features],train['is_attributed'])
+train_TE = train.join(target_enc.transform(train[categorical_features]).add_suffix('_target'))
+valid_TE = valid.join(target_enc.transform(valid[categorical_features]).add_suffix('_target'))
+
+#train model
+dtrain_TE=lgb.Dataset(train_TE[feature_cols],label=train_TE['is_attributed'])
+dvalid_TE = lgb.Dataset(valid_TE[feature_cols], label=valid_TE['is_attributed'])
+param = {'num_leaves': 64, 'objective': 'binary'}
+param['metric'] = 'auc'
+num_round = 1000
+#train model
+bst_TE = lgb.train(param, dtrain_TE, num_round, valid_sets=[dvalid_TE], early_stopping_rounds=10)
+
+#evalute model
+ypred_TE = bst_TE.predict(valid_TE[feature_cols])
+score_TE= metrics.roc_auc_score(valid_TE['is_attributed'], ypred_TE)
+print(f"Test score: {score_TE}")
+
+
