@@ -74,7 +74,7 @@ ypred_CE = bst_CE.predict(valid_encoded[feature_cols])
 score_CE= metrics.roc_auc_score(valid_encoded['is_attributed'], ypred_CE)
 print(f"Test score: {score_CE}")
 """
-
+"""
 #apply target encoding
 target_enc = ce.TargetEncoder(cols=categorical_features)
 target_enc.fit(train[categorical_features],train['is_attributed'])
@@ -94,5 +94,25 @@ bst_TE = lgb.train(param, dtrain_TE, num_round, valid_sets=[dvalid_TE], early_st
 ypred_TE = bst_TE.predict(valid_TE[feature_cols])
 score_TE= metrics.roc_auc_score(valid_TE['is_attributed'], ypred_TE)
 print(f"Test score: {score_TE}")
+"""
 
+#remove IP column 
+categorical_features_2=['app','device','os','channel']
+cb_enc=ce.CatBoostEncoder(cols=categorical_features_2,random_state=7)
+cb_enc.fit(train[categorical_features_2],train['is_attributed'])
+train_CB = train.join(cb_enc.transform(train[categorical_features_2]).add_suffix('_cb'))
+valid_CB = valid.join(cb_enc.transform(valid[categorical_features_2]).add_suffix('_cb'))
 
+#train model
+dtrain_CB=lgb.Dataset(train_CB[feature_cols],label=train_CB['is_attributed'])
+dvalid_CB = lgb.Dataset(valid_CB[feature_cols], label=valid_CB['is_attributed'])
+param = {'num_leaves': 64, 'objective': 'binary'}
+param['metric'] = 'auc'
+num_round = 1000
+#train model
+bst_CB = lgb.train(param, dtrain_CB, num_round, valid_sets=[dvalid_CB], early_stopping_rounds=10)
+
+#evalute model
+ypred_CB= bst_CB.predict(valid_CB[feature_cols])
+score_CB= metrics.roc_auc_score(valid_CB['is_attributed'], ypred_CB)
+print(f"Test score: {score_CB}")
