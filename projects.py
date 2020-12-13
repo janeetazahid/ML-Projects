@@ -81,4 +81,38 @@ bst_2=lgb.train(param,dtrain_2,num_boost_round=1000,valid_sets=[dvalid_2],early_
 valid_pred=bst_2.predict(valid_2[features_cols])
 valid_score=metrics.roc_auc_score(valid_2['outcome'],valid_pred)
 
-print("Validation AUC score: {}".format(valid_score))
+#print("Validation AUC score: {}".format(valid_score))
+
+#Target Encoding
+target_enc=ce.TargetEncoder(cols=categorical_features)
+target_enc.fit(train_2[categorical_features],train_2['outcome'])
+train_TE=train_2.join(target_enc.transform(train_2[categorical_features]).add_suffix('_target'))
+valid_TE=valid_2.join(target_enc.transform(valid_2[categorical_features]).add_suffix('_target'))
+
+feature_cols_2=train_TE.columns.drop('outcome')
+dtrain_TE=lgb.Dataset(train_TE[features_cols],label=train_TE['outcome'])
+dvalid_TE=lgb.Dataset(valid_TE[features_cols],label=valid_TE['outcome'])
+bst_TE=lgb.train(param,dtrain_TE,num_boost_round=1000,valid_sets=[dvalid_TE],early_stopping_rounds=10,verbose_eval=False)
+valid_pred_TE=bst_TE.predict(valid_TE[features_cols])
+valid_score_TE=metrics.roc_auc_score(valid_TE['outcome'],valid_pred_TE)
+
+
+#print("Validation AUC score: {}".format(valid_score_TE))
+
+
+#CatBoost Encoding
+catBoost_enc=ce.CatBoostEncoder(cols=categorical_features)
+catBoost_enc.fit(train[categorical_features],train['outcome'])
+train_CBE=train.join(catBoost_enc.transform(train[categorical_features]).add_suffix('_cb'))
+valid_CBE=valid.join(catBoost_enc.transform(valid[categorical_features]).add_suffix('_cb'))
+
+feature_cols_3=train_CBE.columns.drop('outcome')
+dtrain_CBE=lgb.Dataset(train_CBE[feature_cols_3],label=train_CBE['outcome'])
+dvalid_CBE=lgb.Dataset(valid_CBE[feature_cols_3],label=valid_CBE['outcome'])
+bst_CBE=lgb.train(param,dtrain_CBE,num_boost_round=1000,valid_sets=[dvalid_CBE],early_stopping_rounds=10,verbose_eval=False)
+valid_pred_CBE=bst_CBE.predict(valid_CBE[feature_cols_3])
+valid_score_CBE=metrics.roc_auc_score(valid_CBE['outcome'],valid_pred_CBE)
+
+print("Validation AUC score: {}".format(valid_score_CBE))
+
+
