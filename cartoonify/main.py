@@ -19,4 +19,14 @@ OS: For OS interaction. Here, to read the path and save images to that path.
 """
 
 def chooseFile():
-    imgPath=opengui.fileopenbox()
+    """
+    Allows user to choose file
+    @return imgPath: Path to image
+    """
+    #open file box
+    imgPath=easygui.fileopenbox()
+    return imgPath
+
+
+#Allow user to choose image to cartoonify
+imgPath=chooseFile()
