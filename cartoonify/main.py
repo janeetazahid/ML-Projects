@@ -4,7 +4,9 @@
 import cv2
 import numpy as np 
 import matplotlib.pyplot as plt 
-
+import imageio
+import sys
+import easygui
 
 """
 CV2: Imported to use OpenCV for image processing
@@ -15,3 +17,6 @@ Matplotlib: This library is used for visualization and plotting. Thus, it is imp
 OS: For OS interaction. Here, to read the path and save images to that path.
 
 """
+
+def chooseFile():
+    imgPath=opengui.fileopenbox()
