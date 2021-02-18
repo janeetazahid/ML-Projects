@@ -48,6 +48,6 @@ def cartoonify(imgPath):
     #apply median blur
     greyScale_smooth=cv2.medianBlur(grey_img,5)
     resized_smooth=cv2.resize(greyScale_smooth,(900,900))
-    plt.imshow(resized_smooth,cmap='gray')
 #Allow user to choose image to cartoonify
 imgPath=chooseFile()
+cartoonify(imgPath)
