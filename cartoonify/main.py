@@ -43,6 +43,11 @@ def cartoonify(imgPath):
     #resize image
     img_resized=cv2.resize(img_cvt_clr,(900,900))
     #show image 
-    
+    grey_img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    img_resized_grey=cv2.resize(grey_img,(900,900))
+    #apply median blur
+    greyScale_smooth=cv2.medianBlur(grey_img,5)
+    resized_smooth=cv2.resize(greyScale_smooth,(900,900))
+    plt.imshow(resized_smooth,cmap='gray')
 #Allow user to choose image to cartoonify
 imgPath=chooseFile()
