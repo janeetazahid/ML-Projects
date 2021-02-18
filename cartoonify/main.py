@@ -28,5 +28,11 @@ def chooseFile():
     return imgPath
 
 
+def cartoonify(imgPath):
+    """
+    Cartoonifies image stored in specified image path
+    @param imgPath: path to image file
+    """
+    #read image 
 #Allow user to choose image to cartoonify
 imgPath=chooseFile()
