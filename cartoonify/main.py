@@ -35,6 +35,9 @@ def cartoonify(imgPath):
     """
     #read image 
     img=cv2.imread(imgPath)
+    if img is None:
+        print("The image file could not be found")
+        sys.exit()
     #convert to RGB
     img_cvt_clr=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 #Allow user to choose image to cartoonify
