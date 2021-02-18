@@ -34,5 +34,8 @@ def cartoonify(imgPath):
     @param imgPath: path to image file
     """
     #read image 
+    img=cv2.imread(imgPath)
+    #convert to RGB
+    img_cvt_clr=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 #Allow user to choose image to cartoonify
 imgPath=chooseFile()
