@@ -40,5 +40,9 @@ def cartoonify(imgPath):
         sys.exit()
     #convert to RGB
     img_cvt_clr=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    #resize image
+    img_resized=cv2.resize(img_cvt_clr,(900,900))
+    #show image 
+    
 #Allow user to choose image to cartoonify
 imgPath=chooseFile()
